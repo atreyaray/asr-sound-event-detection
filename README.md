@@ -2,6 +2,8 @@
 
 ### Getting Started
 
+You can directly run `source ./setup.sh` in the terminal directly or follow the steps below.
+
 ```bash
 python3 -m venv venv 
 source venv/bin/activate
