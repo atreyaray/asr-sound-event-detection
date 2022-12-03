@@ -1,20 +1,70 @@
 import streamlit as st
 from audio_recorder_streamlit import audio_recorder
 import numpy as np
-import matplotlib.pyplot as plt
-import librosa
-
+import matplotlib.pyplot as plt 
+import torch
+import torch.nn as nn
+from audio import AudioUtil
+from model import AudioClassifier
 
 # streamlit run Website/main.py
+
+@st.cache(allow_output_mutation=True)
+def load_model(model_path):
+    model = AudioClassifier()
+    model.load_state_dict(torch.load(model_path))
+    model.eval()
+    return model
+
+@st.cache
+def sounds(prediction) :
+    sound_label = ["Dog", "Rooster", "Pig", "Cow", "Frog", "Cat", "Hen", "Insects (flying)", "Sheep", "Crow"
+                    ,"Rain", "Sea waves", "Crackling fire", "Crickets", "Chirping birds", "Water drops", "Wind", "Pouring water", "Toilet flush", "Thunderstorm"
+                    ,"Crying baby", "Sneezing", "Clapping", "Breathing", "Coughing", "Footsteps", "Laughing", "Brushing teeth", "Snoring", "Drinking, sipping"
+                    , "Door knock", "Mouse click", "Keyboard typing", "Door, wood creaks", "Can opening", "washing machine", "Vacuum cleaner", "Clock alarm", "Clock tick", "Glass breaking"
+                    , "Helicopter", "Chainsaw", "Siren", "Car horn", "Engine", "Train", "Church bells", "Airplane", "Fireworks", "Hand saw"]
+    s = dict(zip(range(50), sound_label))
+    return s[prediction]
+
+@st.cache
+def endtoend(model, audiofile):
+    audio = AudioUtil.open(audiofile)
+    rechannel = AudioUtil.rechannel(audio, 2)
+    resamp = AudioUtil.resample(rechannel, 44100)
+
+    padded = AudioUtil.resize_aud(resamp, 5000)
+    shifted = AudioUtil.time_shift(padded, 0.4)
+    sgram = AudioUtil.spectro_gram(shifted, n_mels=64, n_fft=1024, hop_len=None)
+    aug_sgram = AudioUtil.spectro_augment(sgram, max_mask_pct=0.1, n_freq_masks=2, n_time_masks=2)
+    input_loader = torch.utils.data.DataLoader(aug_sgram, batch_size=16, shuffle=False)
+    
+    for input in input_loader:
+        #print(input.shape)
+        input = input.reshape([-1,2,64,430])
+        #print(input.shape)
+        input_m, input_s = input.mean(), input.std()
+        input = (input - input_m) / input_s
+        output = model(input)
+        _, prediction = torch.max(output,1)
+        prediction = prediction.numpy()[0]
+        print(f"I think this is the sound of a {sounds(prediction)}")
+    return prediction
+
 
 '''
 # Sound Audio Detection
 
 '''
 
+
 audio_bytes = audio_recorder()
 if audio_bytes:
     st.audio(audio_bytes, format="audio/wav")
+
+    # save audio file to disk
+    with open("audio.wav", "wb") as f:
+        f.write(audio_bytes)
+
 
     # convert bytes to numpy array
     audio = np.frombuffer(audio_bytes, dtype=np.int16)
@@ -29,7 +79,12 @@ if audio_bytes:
     ax[1].set(title="Audio Spectrogram")
     ax[1].label_outer()
 
+    # call end to end
+    model = load_model("../Models/cnn-100.pt")
+    s = endtoend(model, "audio.wav")
+    st.write(s)
+
     st.pyplot(fig)
 
-    audio.shape
+
     
