@@ -10,9 +10,9 @@ from model import AudioClassifier
 # streamlit run Website/main.py
 
 @st.cache(allow_output_mutation=True)
-def load_model(model_path):
+def load_model(model_path, map_location):
     model = AudioClassifier()
-    model.load_state_dict(torch.load(model_path))
+    model.load_state_dict(torch.load(model_path), map_location=map_location)
     model.eval()
     return model
 
@@ -80,7 +80,7 @@ if audio_bytes:
     ax[1].label_outer()
 
     # call end to end
-    model = load_model("../Models/cnn-100.pt")
+    model = load_model(r'../Models/cnn-100.pt', map_location=torch.device('cpu'))
     s = endtoend(model, "audio.wav")
     st.write(s)
 
