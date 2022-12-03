@@ -17,7 +17,20 @@ wget https://github.com/karoldvl/ESC-50/archive/master.zip
 unzip master.zip
 rm master.zip
 ```
+In case you have `python2`
 
+```bash
+virtualenv venv
+source ./venv/bin/activate
+
+mkdir Dataset && mkdir Preprocessed\ Dataset
+cd Dataset
+# if you don't have wget, manually download the zip file from 
+# https://github.com/karoldvl/ESC-50/archive/master.zip and put it in the Dataset folder
+wget https://github.com/karoldvl/ESC-50/archive/master.zip
+unzip master.zip
+rm master.zip
+```
 
 
 ### Important Links 
