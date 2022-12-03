@@ -1,3 +1,4 @@
+import os
 import streamlit as st
 from audio_recorder_streamlit import audio_recorder
 import numpy as np
@@ -80,9 +81,11 @@ if audio_bytes:
     ax[1].label_outer()
 
     # call end to end
-    model = load_model(r'/Users/atreya/Desktop/TEMP/asr-sound-event-detection/Website/cnn-100.pt', map_location=torch.device('cpu'))
+    # get the absolute path of the current directory 
+    dir = os.path.dirname(__file__)
+    model = load_model(dir + '/cnn-100.pt', map_location=torch.device('cpu'))
     s = endtoend(model, "audio.wav")
-    st.write(f"I think this is the sound of a {s}")
+    st.write(f"I think this is the sound of a {sounds(s)}")
 
     st.pyplot(fig)
 
