@@ -6,13 +6,14 @@ import torch
 import torch.nn as nn
 from audio import AudioUtil
 from model import AudioClassifier
+import torchaudio
 
 # streamlit run Website/main.py
 
 @st.cache(allow_output_mutation=True)
 def load_model(model_path, map_location):
     model = AudioClassifier()
-    model.load_state_dict(torch.load(model_path), map_location=map_location)
+    model.load_state_dict(torch.load(model_path, map_location=map_location))
     model.eval()
     return model
 
@@ -80,7 +81,7 @@ if audio_bytes:
     ax[1].label_outer()
 
     # call end to end
-    model = load_model(r'../Models/cnn-100.pt', map_location=torch.device('cpu'))
+    model = load_model(r'/Users/atreya/Desktop/TEMP/asr-sound-event-detection/Website/cnn-100.pt', map_location=torch.device('cpu'))
     s = endtoend(model, "audio.wav")
     st.write(s)
 
