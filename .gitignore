@@ -4,3 +4,5 @@ venv
 Dataset/
 Preprocessed Dataset/
 Preprocessed Data/
+Models/misc
+Models/svm
