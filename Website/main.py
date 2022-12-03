@@ -1,3 +1,4 @@
+import os
 import streamlit as st
 from audio_recorder_streamlit import audio_recorder
 import numpy as np
@@ -6,13 +7,14 @@ import torch
 import torch.nn as nn
 from audio import AudioUtil
 from model import AudioClassifier
+import torchaudio
 
 # streamlit run Website/main.py
 
 @st.cache(allow_output_mutation=True)
 def load_model(model_path, map_location):
     model = AudioClassifier()
-    model.load_state_dict(torch.load(model_path), map_location=map_location)
+    model.load_state_dict(torch.load(model_path, map_location=map_location))
     model.eval()
     return model
 
@@ -47,7 +49,6 @@ def endtoend(model, audiofile):
         output = model(input)
         _, prediction = torch.max(output,1)
         prediction = prediction.numpy()[0]
-        print(f"I think this is the sound of a {sounds(prediction)}")
     return prediction
 
 
@@ -80,9 +81,11 @@ if audio_bytes:
     ax[1].label_outer()
 
     # call end to end
-    model = load_model(r'../Models/cnn-100.pt', map_location=torch.device('cpu'))
+    # get the absolute path of the current directory 
+    dir = os.path.dirname(__file__)
+    model = load_model(dir + '/cnn-100.pt', map_location=torch.device('cpu'))
     s = endtoend(model, "audio.wav")
-    st.write(s)
+    st.write(f"I think this is the sound of a {sounds(s)}")
 
     st.pyplot(fig)
 
