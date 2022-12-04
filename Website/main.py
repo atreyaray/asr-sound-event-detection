@@ -31,7 +31,7 @@ def sounds(prediction) :
 @st.cache
 def endtoend(model, audiofile):
     audio = AudioUtil.open(audiofile)
-    rechannel = AudioUtil.rechannel(audio, 2)
+    rechannel = AudioUtil.rechannel(audio, 1) #change the channel
     resamp = AudioUtil.resample(rechannel, 44100)
 
     padded = AudioUtil.resize_aud(resamp, 5000)
@@ -42,10 +42,11 @@ def endtoend(model, audiofile):
     
     for input in input_loader:
         #print(input.shape)
-        input = input.reshape([-1,2,64,430])
+        input = input.reshape([-1,1,64,430]) #change the channel
         #print(input.shape)
         input_m, input_s = input.mean(), input.std()
         input = (input - input_m) / input_s
+        #print(input.shape)
         output = model(input)
         _, prediction = torch.max(output,1)
         prediction = prediction.numpy()[0]
@@ -83,7 +84,7 @@ if audio_bytes:
     # call end to end
     # get the absolute path of the current directory 
     dir = os.path.dirname(__file__)
-    model = load_model(dir + '/cnn-100.pt', map_location=torch.device('cpu'))
+    model = load_model(dir + '/cnn-100equalsplit.pt', map_location=torch.device('cpu'))
     s = endtoend(model, "audio.wav")
     st.write(f"I think this is the sound of a {sounds(s)}")
 
