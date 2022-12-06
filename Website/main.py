@@ -11,14 +11,14 @@ import torchaudio
 
 # streamlit run Website/main.py
 
-@st.cache(allow_output_mutation=True)
+
 def load_model(model_path, map_location):
     model = AudioClassifier()
     model.load_state_dict(torch.load(model_path, map_location=map_location))
     model.eval()
     return model
 
-@st.cache
+
 def sounds(prediction) :
     sound_label = ["Dog", "Rooster", "Pig", "Cow", "Frog", "Cat", "Hen", "Insects (flying)", "Sheep", "Crow"
                     ,"Rain", "Sea waves", "Crackling fire", "Crickets", "Chirping birds", "Water drops", "Wind", "Pouring water", "Toilet flush", "Thunderstorm"
@@ -28,7 +28,6 @@ def sounds(prediction) :
     s = dict(zip(range(50), sound_label))
     return s[prediction]
 
-@st.cache
 def endtoend(model, audiofile):
     audio = AudioUtil.open(audiofile)
     rechannel = AudioUtil.rechannel(audio, 1) #change the channel
