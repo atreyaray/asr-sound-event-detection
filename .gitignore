@@ -8,3 +8,4 @@ Models/misc
 Models/svm
 Website/__pycache__
 __pycache__/
+Models/sgd-*
